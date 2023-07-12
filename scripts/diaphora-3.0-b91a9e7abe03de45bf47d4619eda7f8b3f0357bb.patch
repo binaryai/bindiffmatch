@@ -1,0 +1,128 @@
+diff --git a/database/schema.py b/database/schema.py
+index a2a0e16..7e13bf7 100644
+--- a/database/schema.py
++++ b/database/schema.py
+@@ -181,5 +181,10 @@ TABLES = [
+   """ create table if not exists compilation_unit_functions (
+                   id integer primary key,
+                   cu_id integer not null references compilation_units(id) on delete cascade,
+-                  func_id integer not null references functions(id) on delete cascade)"""
++                  func_id integer not null references functions(id) on delete cascade)""",
++   """create table if not exists program_basic_info (
++                  id integer primary key,
++                  program_id integer not null unique,
++                  file_sha256 text not null,
++                  base_address text not null)""",
+ ]
+diff --git a/diaphora.py b/diaphora.py
+index 435530d..50a9f54 100755
+--- a/diaphora.py
++++ b/diaphora.py
+@@ -633,6 +633,24 @@ class CBinDiff:
+ 
+     return ret
+ 
++  def add_program_basic_info(self, program_id, file_sha256, base_address):
++    cur = self.db_cursor()
++    sql = "insert into main.program_basic_info (program_id, file_sha256, base_address) values (?, ?, ?)"
++    values = (program_id, file_sha256, str(base_address))
++    cur.execute(sql, values)
++    cur.close()
++
++  def get_program_basic_info(self, program_id):
++    cur = self.db_cursor()
++    sql = "select program_id, file_sha256, base_address from program_basic_info where program_id = ?"
++    cur.execute(sql, (program_id,))
++    row = cur.fetchone()
++    basic_info = {}
++    if row is not None:
++      basic_info = dict(row)
++    cur.close()
++    return basic_info
++
+   def add_program_data(self, type_name, key, value):
+     """
+     Add a row of program data to the database.
+@@ -690,6 +708,9 @@ class CBinDiff:
+       for instruction in bb_data[key]:
+         instruction_properties = []
+         for instruction_property in instruction:
++          if (isinstance(instruction_property, int) and
++              (instruction_property > 0xFFFFFFFF or instruction_property < -0xFFFFFFFF)):
++            instruction_property = str(instruction_property)
+           if isinstance(instruction_property, (list, set)):
+             instruction_properties.append(
+               json.dumps(
+@@ -2484,6 +2505,19 @@ class CBinDiff:
+ 
+     cur = results_db.cursor()
+     try:
++      sql = """create table if not exists program_basic_info (
++                id integer primary key,
++                program_id integer not null unique,
++                file_sha256 text not null,
++                base_address text not null)"""
++      cur.execute(sql)
++
++      sql = "insert into main.program_basic_info (program_id, file_sha256, base_address) values (?, ?, ?)"
++      values = (1, self.basic_info_1["file_sha256"], str(self.basic_info_1["base_address"]))
++      cur.execute(sql, values)
++      values = (2, self.basic_info_2["file_sha256"], str(self.basic_info_2["base_address"]))
++      cur.execute(sql, values)
++
+       sql = "create table config (main_db text, diff_db text, version text, date text)"
+       cur.execute(sql)
+ 
+@@ -3466,6 +3500,15 @@ class CBinDiff:
+         f"WARNING: The database is from a different version (current {VERSION_VALUE}, database {row[0]})!"
+       )
+ 
++    self.basic_info_1 = self.get_program_basic_info(1)
++    sql = "select program_id, file_sha256, base_address from diff.program_basic_info where program_id = ?"
++    cur.execute(sql, (1,))
++    row = cur.fetchone()
++    basic_info_2 = {}
++    if row is not None:
++      basic_info_2 = dict(row)
++    self.basic_info_2 = basic_info_2
++
+     try:
+       t0 = time.monotonic()
+       cur_thread = threading.current_thread()
+@@ -3608,6 +3651,8 @@ if __name__ == "__main__":
+     parser.add_argument("db1")
+     parser.add_argument("db2")
+     parser.add_argument("-o", "--outfile", help="Write output to <outfile>")
++    if not IS_IDA:
++      parser.add_argument("--relaxed_ratio", action="store_true")
+     args = parser.parse_args()
+     db1 = args.db1
+     db2 = args.db2
+@@ -3621,6 +3666,7 @@ if __name__ == "__main__":
+   if do_diff:
+     bd = CBinDiff(db1)
+     if not IS_IDA:
++      bd.relaxed_ratio = args.relaxed_ratio
+       bd.ignore_all_names = False
+ 
+     bd.db = sqlite3_connect(db1)
+diff --git a/diaphora_ida.py b/diaphora_ida.py
+index 9728497..42a59e9 100644
+--- a/diaphora_ida.py
++++ b/diaphora_ida.py
+@@ -1200,6 +1200,7 @@ class CIDABinDiff(diaphora.CBinDiff):
+         self.db.execute("BEGIN transaction")
+ 
+     md5sum = GetInputFileMD5()
++    self.add_program_basic_info(1, retrieve_input_file_sha256(), self.get_base_address())
+     self.save_callgraph(
+       str(callgraph_primes), json.dumps(callgraph_all_primes), md5sum
+     )
+@@ -3867,6 +3868,7 @@ def remove_file(filename):
+           "function_bblocks",
+           "compilation_units",
+           "compilation_unit_functions",
++          "program_basic_info",
+         ]
+         for func in funcs:
+           db.execute(f"drop table if exists {func}")
