@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binaryai-bindiffmatch"
+authors = [
+    {name = "hzqmwne", email = "huangzhengqmwne@sina.cn"},
+    {name = "KeenLab", email = "KeenSecurityLab@tencent.com"},
+]
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3,<4",
+    "numpy>=1,<2",
+    "scipy>=1,<2",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+lowmem = ["nanolsap"]
+dev = ["flake8", "black", "isort", "mypy"]
+
+[project.urls]
+homepage = "https://github.com/binaryai/bindiffmatch"
+documentation = "https://github.com/binaryai/bindiffmatch"
+repository = "https://github.com/binaryai/bindiffmatch"
+
+[tool.setuptools.packages.find]
+include = ["binaryai_bindiffmatch"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed", "MANIFEST.in"]
+
+[tool.setuptools_scm]
+fallback_version = "UNKNOWN"
