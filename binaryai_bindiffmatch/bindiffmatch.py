@@ -6,23 +6,23 @@ import networkx as nx  # type: ignore[import]
 import numpy as np
 
 from .models import AlgorithmOutputMatchPair, BinaryFile, MatchResult
-from .utils import is_valid_function, build_matchresult_with_matchpairs
+from .utils import build_matchresult_with_matchpairs, is_valid_function
 
 try:
     from .similarity_matrix.lowmem import (
         WrapMatrix,
         build_similarity_score_matrix,
         create_numpy_array,
-        wrap_linear_sum_assignment,
         linear_sum_assignment,
+        wrap_linear_sum_assignment,
     )
 except ImportError:
     from .similarity_matrix.basic import (  # type: ignore
         WrapMatrix,
         build_similarity_score_matrix,
         create_numpy_array,
-        wrap_linear_sum_assignment,
         linear_sum_assignment,
+        wrap_linear_sum_assignment,
     )
 
 

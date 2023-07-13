@@ -2,8 +2,8 @@ import argparse
 import dataclasses
 
 from .bindiffmatch import do_bindiffmatch
-from .utils import load_doc, dump_matchresult
 from .models import BinaryFile, MatchResult
+from .utils import dump_matchresult, load_doc
 
 
 @dataclasses.dataclass

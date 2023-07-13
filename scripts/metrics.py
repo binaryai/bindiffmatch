@@ -1,8 +1,8 @@
 import argparse
 import dataclasses
+import os
 from collections.abc import Iterable
 from concurrent.futures import Future, ProcessPoolExecutor
-import os
 
 from binaryai_bindiffmatch import metricsutils
 from binaryai_bindiffmatch.models import Function, MatchResult
@@ -260,7 +260,7 @@ def evaluation_on_testcase(datadir: str, algorithm: str) -> None:
             )
             matchresult_file = os.path.join(datadir, testcase_matchresult_filename)
             groundtruth_file = os.path.join(datadir, groundtruth_matchresult_filename)
-            if os.path.exists(matchresult_file) and os.path.exists(groundtruth_file):    
+            if os.path.exists(matchresult_file) and os.path.exists(groundtruth_file):
                 filepairs.append(
                     (
                         os.path.join(datadir, testcase_matchresult_filename),

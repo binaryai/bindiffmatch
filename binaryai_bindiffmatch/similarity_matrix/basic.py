@@ -2,9 +2,7 @@ from typing import Any, Optional
 
 import numpy as np
 import numpy.typing as npt
-
 from scipy.optimize import linear_sum_assignment as linear_sum_assignment  # type: ignore[import]
-
 
 from ..models import BinaryFile
 

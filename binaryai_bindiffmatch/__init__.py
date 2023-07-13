@@ -1,4 +1,4 @@
-from .main import BindiffMatchConfig, defaultconfig, bindiffmatch
+from .main import BindiffMatchConfig, bindiffmatch, defaultconfig
 
 __all__ = [
     "bindiffmatch",
