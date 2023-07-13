@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import numpy as np
 import numpy.typing as npt
-from nanolsap import linear_sum_assignment as linear_sum_assignment
+from nanolsap import linear_sum_assignment
 
 from ..models import BinaryFile
 

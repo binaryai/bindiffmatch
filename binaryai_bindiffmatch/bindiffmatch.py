@@ -13,7 +13,6 @@ try:
         WrapMatrix,
         build_similarity_score_matrix,
         create_numpy_array,
-        linear_sum_assignment,
         wrap_linear_sum_assignment,
     )
 except ImportError:
@@ -21,7 +20,6 @@ except ImportError:
         WrapMatrix,
         build_similarity_score_matrix,
         create_numpy_array,
-        linear_sum_assignment,
         wrap_linear_sum_assignment,
     )
 
@@ -133,7 +131,7 @@ def do_mwm_on_sub_pairs(
         id1_index, id2_index = subrowindex_map[id1], subcolindex_map[id2]
         sub_similarity_score_matrix[id1_index, id2_index] = similarity_score_matrix.get_value(id1, id2)
 
-    row_index_ind, col_index_ind = linear_sum_assignment(sub_similarity_score_matrix, True)
+    row_index_ind, col_index_ind = wrap_linear_sum_assignment(WrapMatrix(sub_similarity_score_matrix), True)
     row_ind = (subrowindexes[i] for i in row_index_ind)
     col_ind = (subcolindexes[j] for j in col_index_ind)
 

@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 import numpy as np
 import numpy.typing as npt
-from scipy.optimize import linear_sum_assignment as linear_sum_assignment  # type: ignore[import]
+from scipy.optimize import linear_sum_assignment  # type: ignore[import]
 
 from ..models import BinaryFile
 
@@ -36,8 +36,16 @@ def wrap_linear_sum_assignment(
     row_index_ind, col_index_ind = linear_sum_assignment(sub_similarity_score_matrix, True)
     row_ind = (subrows[i] for i in row_index_ind)  # type: ignore[index]
     col_ind = (subcols[j] for j in col_index_ind)  # type: ignore[index]
-    row_ind, col_ind = linear_sum_assignment(similarity_score_matrix.get_raw_matrix(), maximize, subrows, subcols)
     return row_ind, col_ind  # type: ignore[return-value]
+
+
+def create_numpy_array(
+    data: npt.ArrayLike | None, dtype: npt.DTypeLike, shape: int | tuple[int, ...]
+) -> npt.NDArray[Any]:
+    a = np.empty(shape=shape, dtype=dtype)
+    if data is not None:
+        a[:] = data
+    return a
 
 
 def build_similarity_score_matrix(doc1: BinaryFile, doc2: BinaryFile) -> WrapMatrix:
