@@ -56,12 +56,13 @@ def build_testcase_cross_optimization_pairs_on_library(
 
 def get_stripped_filenames(datadir: str, library: str) -> list[str]:
     # assert library in libraries
-    stripped_binary_relpath = get_stripped_binary_relpath(
+    labeled_doc_relpath = get_labeled_doc_relpath(
         library, versions[library][-1], optimazations[library][-1], None
     )
     result = []
-    for filename in os.listdir(os.path.join(datadir, stripped_binary_relpath)):
-        assert filename.endswith(".strip")
+    for filename in os.listdir(os.path.join(datadir, labeled_doc_relpath)):
+        assert filename.endswith(".strip.json")
+        filename = filename.removesuffix(".json")
         result.append(filename)
     return result
 
