@@ -32,4 +32,4 @@ include = ["binaryai_bindiffmatch"]
 "*" = ["py.typed", "MANIFEST.in"]
 
 [tool.setuptools_scm]
-fallback_version = "UNKNOWN"
+fallback_version = "0.0.0"
